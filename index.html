@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en">
+    <head>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Vertical (basic) form</h2>
+            <form id="empForm" method="post">
+                <div class="form-group">
+                    <span><label for="empId">Roll Number:</label> <label id="empIdMsg">
+                        </label></span>
+                    <input type="text" class="form-control" name="empId" id="empId"
+                           placeholder="Enter Roll No" required onchange="getEmp()">
+                </div>
+                <div class="form-group">
+                    <label for="empName">Name:</label>
+                    <input type="text" class="form-control" id="empName"
+                           placeholder="Enter Name" name="empName">
+                </div>
+                <div class="form-group">
+                    <label for="sal">Class</label>
+                    <input type="text" class="form-control" id="sal"
+                           placeholder="Enter Class" name="sal">
+                </div>
+                <div class="form-group">
+                    <span><label for="hra">BirthDate</label> <label id="hra">
+                        </label></span>
+                    <input type="text" class="form-control" name="hra" id="hra"
+                           placeholder="Enter BirthDate" required>
+                </div>
+                <div class="form-group">
+                    <span><label for="empId">Address</label> <label id="da">
+                        </label></span>
+                    <input type="text" class="form-control" name="da" id="da"
+                           placeholder="Enter Address" required>
+                </div>
+                <div class="form-group">
+                    <span><label for="empId">Enrollment Date</label> <label id="ded">
+                        </label></span>
+                    <input type="text" class="form-control" name="ded" id="ded"
+                           placeholder="Enter enrollment date" required>
+                </div>
+                <!-- <input type="button" class="btn btn-primary" id="empSave" value="Save"
+                       onclick="saveEmployee();"> -->
+                <div class="form-group text-center">
+                    <button type='button' class='btn btn-lg btn-primary' id='save' onclick='saveData();' disabled>Save</button>
+                    <button type='button' class='btn btn-lg btn-primary' id='Update' onclick='changeData();' disabled>Change</button>
+                    <button type='button' class='btn btn-lg btn-primary' id='reset' onclick='resetData();' disabled>Reset</button>
+
+                </div>
+            </form>
+        </div>
+        
+            
+        <script>
+            
+            var token = "90936861|-31948784479254024|90932362";
+            var db = "EMP-DB";
+            var rel = "EmpData";
+            
+            $("#empId").focus();
+            function validateAndGetFormData() {
+                var empIdVar = $("#empId").val();
+                if (empIdVar === "") {
+                    alert("Employee ID Required Value");
+                    $("#empId").focus();
+                    return "";
+                }
+                var empNameVar = $("#empName").val();
+                if (empNameVar === "") {
+                    alert("Employee Name is Required Value");
+                    $("#empName").focus();
+                    return "";
+                }
+                var sal = $("#sal").val();
+                if (sal === "") {
+                    alert("Employee sal is Required Value");
+                    $("#sal").focus();
+                    return "";
+                }
+                var hra = $("#hra").val();
+                if (hra === "") {
+                    alert("Employee hra is Required Value");
+                    $("#hra").focus();
+                    return "";
+                }
+                var da = $("#da").val();
+                if (da === "") {
+                    alert("Employee da is Required Value");
+                    $("#da").focus();
+                    return "";
+                }
+                var ded = $("#ded").val();
+                if (ded === "") {
+                    alert("Employee deduction is Required Value");
+                    $("#ded").focus();
+                    return "";
+                }
+                
+                var jsonStrObj = {
+                    empId: empIdVar,
+                    empName: empNameVar,
+                    sal: sal,
+                    hra: hra,
+                    da: da, 
+                    ded: ded
+                    
+                };
+                return JSON.stringify(jsonStrObj);
+            }
+            
+            function saveRecNo2LS(jsonObj) {
+                var lvData = JSON.parse(jsonObj.data);
+                localStorage.setItem("recno", lvData.rec_no);
+            }
+            
+            function getEmpIdAsJsonObj() {
+                var empid = $("#empid").val();
+                var jsonStr = {
+                    id: empid
+                };
+                return JSON.stringify(jsonStr);
+            }
+// This method is used to create PUT Json request.
+            function createPUTRequest(connToken, jsonObj, dbName, relName) {
+                var putRequest = "{\n"
+                        + "\"token\" : \""
+                        + connToken
+                        + "\","
+                        + "\"dbName\": \""
+                        + dbName
+                        + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                        + "\"rel\" : \""
+                        + relName + "\","
+                        + "\"jsonStr\": \n"
+                        + jsonObj
+                        + "\n"
+                        + "}";
+                return putRequest;
+            }
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+                var url = dbBaseUrl + apiEndPointUrl;
+                var jsonObj;
+                $.post(url, reqString, function (result) {
+                    jsonObj = JSON.parse(result);
+                }).fail(function (result) {
+                    var dataJsonObj = result.responseText;
+                    jsonObj = JSON.parse(dataJsonObj);
+                });
+                return jsonObj;
+            }
+            function resetForm() {
+                $("#empId").val("")
+                $("#empName").val("");
+                $("#sal").val("");
+                $("#hra").focus();
+                $("#da").focus();
+                $("#ded").focus();
+                $("#empid").prop("disabled", false);
+                $("#save").prop("disabled", true);
+                $("#change").prop("disabled", true);
+                $("#reset").prop("disabled", true);
+                $("#empid").focus();
+                
+            }
+            
+            funtion getEmp() {
+                var empIdJsonObj = getEmpIdAsJsonObj();
+                var getRequest = createGET_BY_KEYRequest(token, db, rel, empIdJsonObj)
+                jQuery.ajaxSetup({async: false});
+                var resJsonObj = executeCommandAtGivenBaseUrl(getRequest, "http://api.login2explore.com:5577", "/api/irl");
+                jQuery.ajaxSetup({async: true});
+                if (resJsonObj.status == 400) {
+                    $("#save").prop("disabled", false);
+                    $("#reset").prop("disabled", false);
+                    $("#empname").focus();
+                } else if (resJsonObj.status == 200) {
+                    $("#empid").prop("disabled", false);
+                    fillData(resJsonObj);
+                    $("#change").prop("disabled", false);
+                    $("#reset").prop("disabled", false);
+                    $("#empname").focus();
+                }
+            }
+            
+            function fillData(jsonObj) {
+                saveRecNo2LS(jsonObj);
+                var record
+                        = JSON.parse(jsonObj.data).record;
+                $("#empname").val(record.name);
+                $("#sal").val(record.salary);
+                $("#hra").val(record.hra);
+                $("#da").val(record.da);
+                $("#ded").val(record.deduction);
+                
+                
+            }
+            
+            function saveData() {
+                var jsonStr = validateAndGetFormData();
+                if (jsonStr === "") {
+                    return;
+                }
+                var putRequest = createPUTRequest("90936861|-31948784479254024|90932362",
+                        jsonStrObj, "EMP-DB", "EmpData");
+  
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommandAtGivenBaseUrl(putReqStr,
+                        "http://api.login2explore.com:5577", "/api/iml");
+               
+                jQuery.ajaxSetup({async: true});
+                resetForm();
+                $("#empid").focus();
+            }
+            function changeData() {
+                $("#change").prop("disabled", true);
+                jsonChg = validateData();
+                var updateRequest = createUPDATERequest("90936861|-31948784479254024|90932362",
+                        jsonChg, "EMP-DB", "EmpData", localStorage.getItem("recno"));
+  
+  
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommandAtGivenBaseURL(putReqStr,
+                        "http://api.login2explore.com:5577", "/api/iml");
+               
+                jQuery.ajaxSetup({async: true});
+                console.log(resJsonObj);
+                resetForm();
+                $("#empid").focus();
+            }
+        </script>
+    </body>
+</html>
+</body>
+</html>
