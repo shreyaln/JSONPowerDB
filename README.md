@@ -13,3 +13,5 @@ Benefits of using JsonPowerDB:
 - Real-time Database
 - Multi-mode Database:
 
+- Note: all functions are included in index.html
+  
